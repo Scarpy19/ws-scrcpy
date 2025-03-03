@@ -11,5 +11,6 @@
   "INCLUDE_FILE_LISTING": true,
   "INCLUDE_APPL": false,
   "INCLUDE_GOOG": true,
-  "PATHNAME": "/"
+  "PATHNAME": "/",
+  "DISABLE_CLIPBOARD": true
 }
