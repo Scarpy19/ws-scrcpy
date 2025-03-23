@@ -2,14 +2,14 @@
 
 # Device trackers
 ## track android devices (default: true, if was INCLUDE_GOOG enabled in build config)
-runGoogTracker: false
+runGoogTracker: false;
 ## track iOS devices (default: true, if was INCLUDE_APPL enabled in build config)
 runApplTracker: false;
 
 # HTTP[s] servers configuration
 server:
   - secure: false
-    port: 8000
+    port: 80
     redirectToSecure:
       port: 8443
       host: first-mobile-stand.example.com
