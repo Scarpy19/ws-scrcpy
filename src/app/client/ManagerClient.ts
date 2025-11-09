@@ -91,13 +91,14 @@ export abstract class ManagerClient<P extends ParamsBase, TE extends EventMap> e
         const pathname = this.params.pathname ?? location.pathname;
         let urlString: string;
         if (typeof hostname === 'string' && typeof port === 'number') {
-            const protocol = secure ? 'wss:' : 'ws:';
+            const protocol = secure === false ? 'ws:' : 'wss:';
             urlString = `${protocol}//${hostname}:${port}${pathname}`;
         } else {
-            const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            // Default to WSS for security, unless explicitly disabled
+            const protocol = secure === false ? 'ws:' : 'wss:';
 
             // location.host includes hostname and port
-            urlString = `${protocol}${location.host}${pathname}`;
+            urlString = `${protocol}//${location.host}${pathname}`;
         }
         const directUrl = new URL(urlString);
         if (this.supportMultiplexing()) {
@@ -111,7 +112,8 @@ export abstract class ManagerClient<P extends ParamsBase, TE extends EventMap> e
     }
 
     protected wrapInProxy(directUrl: URL): URL {
-        const localProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+        // Default to WSS for security, unless explicitly disabled
+        const localProtocol = this.params.secure === false ? 'ws:' : 'wss:';
         const localUrl = new URL(`${localProtocol}//${location.host}`);
         localUrl.searchParams.set('action', ACTION.PROXY_WS);
         localUrl.searchParams.set('ws', directUrl.toString());
