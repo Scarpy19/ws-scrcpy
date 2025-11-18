@@ -10,10 +10,6 @@ function warnPlayerSkip(playerName: string, reason: string): void {
     console.warn(`[PlayerGate] ${playerName} disabled: ${reason}`);
 }
 
-function supportsWebAssembly(): boolean {
-    return typeof WebAssembly !== 'undefined';
-}
-
 function supportsMediaSource(): boolean {
     if (!globalWindow || typeof globalWindow.MediaSource === 'undefined') {
         return false;
@@ -23,10 +19,6 @@ function supportsMediaSource(): boolean {
         return false;
     }
     return MediaSourceCtor.isTypeSupported(MEDIA_SOURCE_H264_CODEC);
-}
-
-function supportsTinyH264Decoder(): boolean {
-    return supportsWebAssembly() && typeof Worker !== 'undefined';
 }
 
 function supportsWebCodecs(): boolean {
@@ -43,30 +35,12 @@ window.onload = async function (): Promise<void> {
     const parsedQuery = new URLSearchParams(hash);
     const action = parsedQuery.get('action');
 
-    /// #if USE_BROADWAY
-    if (supportsWebAssembly()) {
-        const { BroadwayPlayer } = await import('./player/BroadwayPlayer');
-        StreamClientScrcpy.registerPlayer(BroadwayPlayer);
-    } else {
-        warnPlayerSkip('Broadway', 'WebAssembly API not available');
-    }
-    /// #endif
-
     /// #if USE_H264_CONVERTER
     if (supportsMediaSource()) {
         const { MsePlayer } = await import('./player/MsePlayer');
         StreamClientScrcpy.registerPlayer(MsePlayer);
     } else {
         warnPlayerSkip('MSE', 'MediaSource Extensions + baseline H264 support not detected');
-    }
-    /// #endif
-
-    /// #if USE_TINY_H264
-    if (supportsTinyH264Decoder()) {
-        const { TinyH264Player } = await import('./player/TinyH264Player');
-        StreamClientScrcpy.registerPlayer(TinyH264Player);
-    } else {
-        warnPlayerSkip('TinyH264', 'WebAssembly or WebWorker APIs not available');
     }
     /// #endif
 
