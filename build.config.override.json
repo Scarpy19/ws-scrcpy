@@ -4,12 +4,12 @@
     "INCLUDE_ADB_SHELL": false,
     "INCLUDE_DEV_TOOLS": false,
     "INCLUDE_FILE_LISTING": false,
-    "USE_BROADWAY": true,
+    "USE_BROADWAY": false,
     "USE_H264_CONVERTER": true,
     "USE_TINY_H264": true,
     "USE_WEBCODECS": true,
     "USE_WDA_MJPEG_SERVER": false,
     "USE_QVH_SERVER": false,
     "SCRCPY_LISTENS_ON_ALL_INTERFACES": false,
-    "DISABLE_CLIPBOARD": true
+    "DISABLE_CLIPBOARD": false
 }
