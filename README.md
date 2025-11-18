@@ -11,7 +11,7 @@ Browser must support the following technologies:
 * WebAssembly
 
 Server:
-* Node.js v10+
+* Node.js v18+
 * node-gyp ([installation](https://github.com/nodejs/node-gyp#installation))
 * `adb` executable must be available in the PATH environment variable
 
