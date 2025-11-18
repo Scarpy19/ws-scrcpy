@@ -2,9 +2,11 @@
 
 # Device trackers
 ## track android devices (default: true, if was INCLUDE_GOOG enabled in build config)
-runGoogTracker: false;
+runGoogTracker: false
+announceGoogTracker: false
 ## track iOS devices (default: true, if was INCLUDE_APPL enabled in build config)
-runApplTracker: false;
+runApplTracker: false
+announceApplTracker: false
 
 # HTTP[s] servers configuration
 server:
