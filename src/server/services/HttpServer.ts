@@ -1,5 +1,6 @@
 import * as http from 'http';
 import * as https from 'https';
+import net from 'net';
 import path from 'path';
 import { Service } from './Service';
 import { Utils } from '../Utils';
@@ -27,6 +28,7 @@ export class HttpServer extends TypedEmitter<HttpServerEvents> implements Servic
     private static PUBLIC_DIR = DEFAULT_STATIC_DIR;
     private static SERVE_STATIC = true;
     private servers: ServerAndPort[] = [];
+    private sockets: Set<net.Socket> = new Set();
     private mainApp?: Express;
     private started = false;
 
@@ -127,6 +129,11 @@ export class HttpServer extends TypedEmitter<HttpServerEvents> implements Servic
                 server = http.createServer(options, currentApp);
             }
             this.servers.push({ server, port });
+            // Track incoming connections so we can destroy them on shutdown.
+            server.on('connection', (socket: net.Socket) => {
+                this.sockets.add(socket);
+                socket.on('close', () => this.sockets.delete(socket));
+            });
             server.listen(port, () => {
                 Utils.printListeningMsg(proto, port, PATHNAME);
             });
@@ -136,8 +143,22 @@ export class HttpServer extends TypedEmitter<HttpServerEvents> implements Servic
     }
 
     public release(): void {
+        // First, destroy any active sockets (keep-alive connections) so the
+        // process doesn't stay alive waiting for them to close naturally.
+        this.sockets.forEach((socket) => {
+            try {
+                socket.destroy();
+            } catch (err) {
+                // ignore
+            }
+        });
+
         this.servers.forEach((item) => {
-            item.server.close();
+            try {
+                item.server.close();
+            } catch (err) {
+                // ignore
+            }
         });
     }
 }

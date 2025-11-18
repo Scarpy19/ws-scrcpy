@@ -76,6 +76,19 @@ export class WebSocketServer implements Service {
 
     public release(): void {
         this.servers.forEach((server) => {
+            // Terminate all connected clients before closing the server so sockets
+            // don't keep the Node process alive.
+            try {
+                server.clients.forEach((client: WS) => {
+                    try {
+                        client.terminate();
+                    } catch (err) {
+                        // ignore
+                    }
+                });
+            } catch (err) {
+                // ignore if clients not iterable for some reason
+            }
             server.close();
         });
     }
