@@ -1,5 +1,6 @@
 import '../../LICENSE';
 import * as readline from 'readline';
+import { exec } from 'child_process';
 import { Config } from './Config';
 import { HttpServer } from './services/HttpServer';
 import { WebSocketServer } from './services/WebSocketServer';
@@ -138,4 +139,17 @@ function exit(signal: string) {
         console.log(`Stopping ${serviceName} ...`);
         service.release();
     });
+
+    // Try to stop adb server to avoid adb daemon keeping ports/sockets open
+    try {
+        exec('adb kill-server', (err) => {
+            if (err) {
+                console.warn(`adb kill-server failed: ${String(err)}`);
+                return;
+            }
+            console.log('adb server killed');
+        });
+    } catch (err) {
+        console.warn(`Unable to execute adb kill-server: ${String(err)}`);
+    }
 }
