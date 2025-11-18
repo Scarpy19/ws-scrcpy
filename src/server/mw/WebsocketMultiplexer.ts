@@ -47,6 +47,10 @@ export class WebsocketMultiplexer extends Mw {
     }
 
     protected onChannel({ channel, data }: { channel: Multiplexer; data: ArrayBuffer }): void {
+        if (data.byteLength < 4) {
+            channel.close(4002, `[${WebsocketMultiplexer.TAG}] Unsupported request`);
+            return;
+        }
         let processed = false;
         for (const mwFactory of WebsocketMultiplexer.mwFactories.values()) {
             try {

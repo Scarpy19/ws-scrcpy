@@ -1,5 +1,6 @@
 export class ServerVersion {
     protected parts: string[] = [];
+    protected numericParts: number[] = [];
     protected suffix: string;
     protected readonly compatible: boolean;
 
@@ -9,6 +10,10 @@ export class ServerVersion {
         this.suffix = temp.join('-');
         if (main) {
             this.parts = main.split('.');
+            this.numericParts = this.parts.map((part) => {
+                const value = Number(part);
+                return Number.isNaN(value) ? 0 : value;
+            });
         }
         this.compatible = this.suffix.startsWith('ws') && this.parts.length >= 2;
     }
@@ -20,22 +25,19 @@ export class ServerVersion {
         if (this.equals(a)) {
             return false;
         }
-        if (typeof a === 'string') {
-            a = new ServerVersion(a);
-        }
-        const minLength = Math.min(this.parts.length, a.parts.length);
-        for (let i = 0; i < minLength; i++) {
-            if (this.parts[i] > a.parts[i]) {
-                return true;
+        const other = typeof a === 'string' ? new ServerVersion(a) : a;
+        const maxLength = Math.max(this.numericParts.length, other.numericParts.length);
+        for (let i = 0; i < maxLength; i++) {
+            const current = this.numericParts[i] ?? 0;
+            const opponent = other.numericParts[i] ?? 0;
+            if (current !== opponent) {
+                return current > opponent;
             }
         }
-        if (this.parts.length > a.parts.length) {
-            return true;
+        if (this.suffix !== other.suffix) {
+            return this.suffix > other.suffix;
         }
-        if (this.parts.length < a.parts.length) {
-            return false;
-        }
-        return this.suffix > a.suffix;
+        return false;
     }
     public isCompatible(): boolean {
         return this.compatible;
